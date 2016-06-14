@@ -55,9 +55,8 @@ def parse_cli_arguments():
     # Parse args
     opts, args = parser.parse_args()
     # Check if the user provided the two mandatory paths
-    if len(args) < 2:
-        logger.error(u"Please provide both the path to the sql query and the "
-                     u"configuration file.")
+    if len(args) < 1:
+        logger.error(u"Please provide the path to the sql query at least.")
         sys.exit(1)
     return opts, args
 
@@ -149,25 +148,32 @@ def run_query(sql_string, impala_options, dry_run):
 if __name__ == '__main__':
     # Parse cli arguments
     opts, args = parse_cli_arguments()
+    config_variables = None 
     # Activate verbose mode if requested
     if opts.verbose:
         logger.setLevel(logging.DEBUG)
     # Convert provided paths to absolute paths
     sql_path = os.path.abspath(os.path.expanduser(args[0]))
     logger.debug(u'Provided sql path is: {}'.format(sql_path))
-    config_path = os.path.abspath(os.path.expanduser(args[1]))
-    logger.debug(u'Provided config. file path is: {}'.format(config_path))
     # Check if the two files exists
     if not os.path.isfile(sql_path):
         logger.error(u"sql file not found: {}".format(sql_path))
         sys.exit(1)
-    if not os.path.isfile(config_path):
-        logger.error(u"configuration file not found: {}".format(config_path))
-        sys.exit(1)
+    if len(args) == 2:
+        config_path = os.path.abspath(os.path.expanduser(args[1]))
+        logger.debug(u'Provided config. file path is: {}'.format(config_path))
+        if not os.path.isfile(config_path):
+            logger.error(u"configuration file not found: {}".format(config_path))
+            sys.exit(1)
+        config_variables = get_variables(config_path)
+
     # Perform the variable substitution
     raw_sql = get_query_as_string(sql_path)
-    config_variables = get_variables(config_path)
-    formatted_sql = substitute_variables(raw_sql, config_variables)
+    if config_variables:
+        formatted_sql = substitute_variables(raw_sql, config_variables)
+    else:
+        formatted_sql = raw_sql
+    
     # Run the query
     ret_code = run_query(formatted_sql, opts.additional_options, opts.dry_run)
     if ret_code == 0:
