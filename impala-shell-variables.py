@@ -166,8 +166,8 @@ def run_query(sql_string, impala_options, dry_run):
 if __name__ == '__main__':
     # Parse cli arguments
     opts, args = parse_cli_arguments()
-    print(str(opts))
-    config_variables = None 
+    config_variables = {}
+  
     # Activate verbose mode if requested
     if opts.verbose:
         logger.setLevel(logging.DEBUG)
@@ -184,14 +184,13 @@ if __name__ == '__main__':
         if not os.path.isfile(config_path):
             logger.error(u"configuration file not found: {}".format(config_path))
             sys.exit(1)
-        config_variables = get_variables(config_path)
+        config_variables.update(get_variables(config_path))
     if opts.conf:
-        config_variables = config_variables.update(get_variables_conf(opts.conf))
-        
-    print(config_variables)
+        config_variables.update(get_variables_conf(opts.conf))
+    
     # Perform the variable substitution
     raw_sql = get_query_as_string(sql_path)
-    if config_variables:
+    if len(config_variables) > 0:
         formatted_sql = substitute_variables(raw_sql, config_variables)
     else:
         formatted_sql = raw_sql
