@@ -52,6 +52,13 @@ def parse_cli_arguments():
         action="store_true",
         help=u"Just print the formatted sql query without executing it"
     )
+    parser.add_option(
+        '-c', '--conf',
+        action="append",
+        help=u"Add conf for sql query"
+             u"(es: 'dt=2016-5-28')",
+        default=None
+    )
     # Parse args
     opts, args = parser.parse_args()
     # Check if the user provided the two mandatory paths
@@ -101,6 +108,17 @@ def get_variables(configuration_file_path):
     logger.debug(u"Variables from config file: \n" + str(returned_dict))
     return returned_dict
 
+def get_variables_conf(conf_list):
+    """Return a dictionary with the variables from the configuration file
+    with the format:
+
+    { "variable_name": "variable_value" }
+
+    :param conf_list: Parameter passed by -conf 
+    :return: the dictionary with the variables
+    """
+    returned_dict = dict([i.split('=') for i in conf_list])
+    return returned_dict
 
 def substitute_variables(sql_string, variables):
     """
@@ -148,6 +166,7 @@ def run_query(sql_string, impala_options, dry_run):
 if __name__ == '__main__':
     # Parse cli arguments
     opts, args = parse_cli_arguments()
+    print(str(opts))
     config_variables = None 
     # Activate verbose mode if requested
     if opts.verbose:
@@ -166,7 +185,10 @@ if __name__ == '__main__':
             logger.error(u"configuration file not found: {}".format(config_path))
             sys.exit(1)
         config_variables = get_variables(config_path)
-
+    if opts.conf:
+        config_variables = config_variables.update(get_variables_conf(opts.conf))
+        
+    print(config_variables)
     # Perform the variable substitution
     raw_sql = get_query_as_string(sql_path)
     if config_variables:
