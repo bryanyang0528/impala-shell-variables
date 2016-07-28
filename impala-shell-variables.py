@@ -152,6 +152,7 @@ def run_query(sql_string, impala_options, dry_run):
         impala_args.extend(impala_options.split(" "))
     impala_args.append("-q")
     impala_args.append(sql_string)
+    print(str(impala_args))
     # Call impala-shell
     if dry_run:
         logger.debug(u"Performing a dry run")
