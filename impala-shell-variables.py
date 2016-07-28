@@ -129,7 +129,7 @@ def substitute_variables(sql_string, variables):
     :return: the query formatted
     """
     try:
-        formatted = sql_string.format(**variables)
+        formatted = sql_string.replace('${', '{').format(**variables)
         logger.debug(u"Formatted query: \n" + formatted)
         return formatted
     except KeyError as e:
