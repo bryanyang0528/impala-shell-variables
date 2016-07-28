@@ -13,7 +13,7 @@ The script requires two files:
 Usage:
 
 ```
-$ impala-shell-variables.py [-a/--additional-options] [-v/--verbose] [-d/--dry-run] <path-to-sql-file> <path-to-configuration-file>
+$ impala-shell-variables.py [-a/--additional-options] [-v/--verbose] [-d/--dry-run] [-c/--conf var=var] <path-to-sql-file> <path-to-configuration-file>
 ```
 
 `additional-options` can be used to pass to impala-shell additional options,
@@ -34,11 +34,11 @@ To include variables in the sql file use Python's
 For example:
 
 ```sql
-CREATE EXTERNAL TABLE {table_name} (
+CREATE EXTERNAL TABLE {table_name}/${table_name} (
     id      INT,
     name    STRING)
 STORED AS TEXTFILE
-LOCATION '{table_location}';
+LOCATION '{table_location}/${table_locateion}';
 ```
 
 ## Configuration file syntax
@@ -56,4 +56,9 @@ An example configuration file for the above query could be:
 ```
 table_name=test_impala_shell_variables
 table_location=/tmp/test_impala_shell_variables/
+```
+
+## Configuration variable in commandline
+```
+impala-shell-variables.py <sql-file-path> -c date=2016-01-01 -c variable1=variable1 variable2=variable2
 ```
