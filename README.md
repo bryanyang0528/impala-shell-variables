@@ -60,5 +60,5 @@ table_location=/tmp/test_impala_shell_variables/
 
 ## Configuration variable in commandline
 ```
-impala-shell-variables.py <sql-file-path> -c date=2016-01-01 -c variable1=variable1 variable2=variable2
+impala-shell-variables.py <sql-file-path> -conf date=2016-01-01 -conf variable1=variable1 -conf variable2=variable2
 ```
